@@ -17,7 +17,7 @@ addResourcePath('sF', '~/Documents/shinyFilesDropBox/inst/www')
 #' besides the button shows how the user selection is made accessible to the 
 #' server after parsing with \code{\link{parseFilePaths}}.
 #' 
-#' @family shinyFiles
+#' @family shinyFilesDropBox
 #' 
 #' @importFrom shiny runApp
 #' 
@@ -26,7 +26,6 @@ addResourcePath('sF', '~/Documents/shinyFilesDropBox/inst/www')
 shinyDropFilesExample <- function() {
     runApp(system.file('example', package='shinyFilesDropBox', mustWork=T), display.mode='showcase')
 }
-
 
 getDropSession <- function() {
     session <- shiny::getDefaultReactiveDomain()
