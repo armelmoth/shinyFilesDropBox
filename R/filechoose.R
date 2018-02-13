@@ -5,7 +5,7 @@ library(tools)
 source("R/aaa.R")
 NULL
 
-#' Get the information about the folders children
+#' Get the information about the children's folder 
 #' 
 #' This function works with fileGetterFile, fileGetterSave, fileGetterDir functions. 
 #' When the last needs to get information about a children's folder they call this function, which look into
