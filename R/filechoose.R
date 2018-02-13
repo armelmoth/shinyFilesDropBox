@@ -6,8 +6,6 @@ token = drop_auth(new_user = FALSE, cache=TRUE)
 source("R/aaa.R")
 NULL
 
-
-# ctime semble être le moment de création. Il est souvent le plus récent ici
 #' Get the information about the folders children
 #' 
 #' This function work with fileGetterFile, fileGetterSave, fileGetterDir functions. 
