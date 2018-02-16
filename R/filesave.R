@@ -1,15 +1,10 @@
-library(jsonlite)
 #' @include aaa.R
-source("R/aaa.R")
 #' @include filechoose.R
-source("R/filechoose.R")
 #' @include dirchoose.R
-source("R/dirchoose.R")
-#' 
 NULL
 
-
-#'@rdname shinyFilesDropBox-fileGetter 
+#' @importFrom rdrop2 drop_dir drop_exists
+#' @rdname shinyFilesDropBox-fileGetter 
 #' 
 fileGetterSave <- function(restrictions, filetypes,session,id,dtoken,roots=c(Home="")) {
     if (missing(filetypes)) filetypes <- NULL
@@ -165,6 +160,7 @@ fileGetterSave <- function(restrictions, filetypes,session,id,dtoken,roots=c(Hom
 #' @examples
 #' \dontrun{
 #' # File selections
+#' token = drop_auth(new_user = FALSE, cache=TRUE)
 #' ui <- shinyUI(bootstrapPage(
 #'     shinyDropSaveButton('save', 'Save', 'Save as...'),
 #'     verbatimTextOutput('rawInputValue'),
@@ -252,6 +248,7 @@ shinyDropSaveButton <- function(id, label, title, filetype, buttonType='default'
         )
     )
 }
+
 #' Formats the value of the filetype argument
 #' 
 #' This function is intended to format the filetype argument of 
@@ -272,6 +269,7 @@ formatDropFiletype <- function(filetype) {
     }
     toJSON(filetype)
 }
+
 #' @rdname shinyFilesDropBox-parsers
 #' 
 #' @export

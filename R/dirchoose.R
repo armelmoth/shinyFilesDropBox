@@ -1,11 +1,9 @@
 #' @include aaa.R
-source("R/aaa.R")
 #' @include filechoose.R
-source("R/filechoose.R")
-#' 
 NULL
 
-#'@rdname shinyFilesDropBox-fileGetter 
+#' @importFrom rdrop2 drop_dir drop_exists
+#' @rdname shinyFilesDropBox-fileGetter 
 #'
 fileGetterDir <- function(restrictions, filetypes,session,id,dtoken,roots=c(Home="")) {
     if (missing(filetypes)) filetypes <- NULL
@@ -182,6 +180,8 @@ fileGetterDir <- function(restrictions, filetypes,session,id,dtoken,roots=c(Home
 #' @return A list of the same format as 'tree', but with updated values to 
 #' reflect the current file system state.
 #' 
+#' @importFrom rdrop2 drop_dir drop_exists
+#' 
 traverseDropDirs <- function(tree, root, restrictions,dtoken) {
     
     
@@ -272,6 +272,7 @@ updateDropChildren <- function(oldChildren, currentChildren) {
     childrenNames <- sapply(children, `[[`, 'name')
     children[order(childrenNames)]
 }
+
 #' Create a function that updates a folder tree based on the given restrictions
 #' 
 #' This functions returns a new function that will handle updating the folder 
@@ -321,6 +322,7 @@ dirDropGetter <- function(restrictions, filetypes,session,id,dtoken,roots=c(Home
         )
     }
 }
+
 #' Create a function that creates a new directory
 #' 
 #' This function returns a function that can be used to create new directories
@@ -340,6 +342,8 @@ dirDropGetter <- function(restrictions, filetypes,session,id,dtoken,roots=c(Home
 #' 
 #' @return A function that creates directories based on the information returned
 #' by the client.
+#' 
+#' @importFrom rdrop2 drop_create
 #' 
 dirDropCreator <- function(dtoken,roots=c(Home=""),...) {
     function(name, path, root) {
@@ -363,11 +367,13 @@ dirDropCreator <- function(dtoken,roots=c(Home=""),...) {
         drop_create(location, autorename = T,dtoken = dtoken)
     }
 }
+
 #' @rdname shinyFilesDropBox-observers
 #' 
 #' @examples
 #' \dontrun{
 #' # Folder selections
+#' token = drop_auth(new_user = FALSE, cache=TRUE)
 #' ui <- shinyUI(bootstrapPage(
 #' shinyDropDirButton('folder', 'Folder select', 'Please select a folder', FALSE),
 #' verbatimTextOutput('rawInputValue'),

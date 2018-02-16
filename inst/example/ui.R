@@ -15,7 +15,7 @@ shinyUI(pageWithSidebar(
                remembered, as well as any other states. Each button has its own
                memory.'),
         tags$hr(),
-        shinyFilesButton('file', 'File select', 'Please select a file', FALSE),
+        shinyDropFilesButton('file', 'File select', 'Please select a file', FALSE),
         tags$p(),
         tags$p('The file selection button allows the user to select one or
                several files and get their absolute position communicated back
@@ -23,7 +23,7 @@ shinyUI(pageWithSidebar(
                single-file mode and the default path has been set to the "library"
                subdirectory of the "R Installation" path.'),
         tags$hr(),
-        shinyDirButton('directory', 'Folder select', 'Please select a folder'),
+        shinyDropDirButton('directory', 'Folder select', 'Please select a folder'),
         tags$p(),
         tags$p('This button lets the user navigate the file system and select a
                folder. The absolute path of the selected folder is then send
@@ -33,7 +33,7 @@ shinyUI(pageWithSidebar(
                missing write permissions is selected. Lastly it is possible to
                create folders on the fly'),
         tags$hr(),
-        shinySaveButton('save', 'Save file', 'Save file as...', filetype=list(text='txt', picture=c('jpeg', 'jpg'))),
+        shinyDropSaveButton('save', 'Save file', 'Save file as...', filetype=list(text='txt', picture=c('jpeg', 'jpg'))),
         tags$p(),
         tags$p('The last type of button is the save button which allows the user
                to navigate to a position in the filesystem and specify the name

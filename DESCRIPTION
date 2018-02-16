@@ -1,0 +1,22 @@
+Package: shinyFilesDropBox
+Type: Package
+Title: What the package does (short line)
+Version: 1.0
+Date: 2018-02-16
+Author: Armel Moth
+Maintainer:  Armel Moth <armel.ghis.moth@gmail.com>
+Description: This package allows you to navigate into your dropbox repository through a dialog box. He is a merged version of the shinyFiles and rdrop2 packages
+License:
+Imports:
+    tools,
+    shiny (>= 0.11),
+    htmltools,
+    jsonlite,
+    rdrop2
+RoxygenNote: 6.0.1
+Collate: 
+    'aaa.R'
+    'filechoose.R'
+    'dirchoose.R'
+    'filesave.R'
+    'shinyFilesDropBox-package.R'

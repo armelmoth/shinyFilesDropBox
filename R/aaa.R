@@ -1,13 +1,17 @@
+
 #' Adds the content of www to sF/
 #' 
 #' @importFrom shiny addResourcePath
 #' 
 #' @noRd
 #' 
-# .onLoad <- function(...) {
-#     addResourcePath('sF', system.file('www', package='shinyFilesDropBox'))
-# }
-addResourcePath('sF', '~/Documents/shinyFilesDropBox/inst/www')
+.onLoad <- function(...) {
+     addResourcePath('sF', system.file('www', package='shinyFilesDropBox'))
+}
+# If you haven't installed this package in you computer, you can put on comments the lignes above and 
+# uncomment the following ligne. This allows you to get all te CSS and js files.
+#addResourcePath('sF', '~/Documents/shinyFilesDropBox/inst/www')
+
 #' Run a simple example app using the shinyFiles functionality
 #' 
 #' When the function is invoked a shiny app is started showing a very simple 
