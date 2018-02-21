@@ -123,14 +123,16 @@ fileGetterDir <- function(restrictions, filetypes,session,id,dtoken,roots=c(Home
                 fileInfo$size = drop_dir$size
                 
                 lengthIsdir = length(fileInfo$filename[fileInfo$isdir])
-                infoIsdir = lapply(as.vector(drop_dir$path_display[drop_dir$.tag == 'folder']), getInfo,dtoken)
-                session$sendCustomMessage('shinyDirProgress',list(width = "12",id=id))
                 
-                fileInfo$size[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$size})
-                fileInfo$mtime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$mtime})
-                fileInfo$atime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$atime})
-                fileInfo$ctime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$ctime})
-                
+                if(lengthIsdir > 0){
+                    infoIsdir = lapply(as.vector(drop_dir$path_display[drop_dir$.tag == 'folder']), getInfo,dtoken)
+                    session$sendCustomMessage('shinyDirProgress',list(width = "12",id=id))
+                    fileInfo$size[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$size})
+                    fileInfo$mtime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$mtime})
+                    fileInfo$atime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$atime})
+                    fileInfo$ctime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$ctime})
+                }
+
                 session$sendCustomMessage('shinyDirProgress',list(width = "12",id=id))
                 
                 if (!is.null(filetypes)) {
@@ -396,7 +398,7 @@ dirDropCreator <- function(dtoken,roots=c(Home=""),...) {
 #' 
 #' @importFrom shiny observe invalidateLater
 #' 
-shinyDropDirChoose <- function(input, id, updateFreq=20000, session=getDropSession(),
+shinyDropDirChoose <- function(input, id, updateFreq=100000, session=getDropSession(),
                            defaultPath='', defaultRoot=NULL,dtoken,...) {
     clientId = session$ns(id)
     dirGet <- do.call('dirDropGetter', list(session=session,id=clientId,dtoken=dtoken,...))

@@ -122,13 +122,19 @@ fileGetterSave <- function(restrictions, filetypes,session,id,dtoken,roots=c(Hom
                 fileInfo$size = drop_dir$size
                 
                 lengthIsdir = length(fileInfo$filename[fileInfo$isdir])
-                infoIsdir = lapply(as.vector(drop_dir$path_display[drop_dir$.tag == 'folder']), getInfo,dtoken)
-                session$sendCustomMessage('shinySaveProgress',list(width = "12",id=id))
                 
-                fileInfo$size[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$size})
-                fileInfo$mtime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$mtime})
-                fileInfo$atime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$atime})
-                fileInfo$ctime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$ctime})
+                if(lengthIsdir > 0){
+                    infoIsdir = lapply(as.vector(drop_dir$path_display[drop_dir$.tag == 'folder']), getInfo,dtoken)
+                    session$sendCustomMessage('shinySaveProgress',list(width = "12",id=id))
+                    fileInfo$size[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$size})
+                    fileInfo$mtime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$mtime})
+                    fileInfo$atime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$atime})
+                    fileInfo$ctime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$ctime})
+                }
+                
+                
+                
+                
                 
                 session$sendCustomMessage('shinySaveProgress',list(width = "12",id=id))
                 
@@ -182,7 +188,7 @@ fileGetterSave <- function(restrictions, filetypes,session,id,dtoken,roots=c(Hom
 #' 
 #' @importFrom shiny observe invalidateLater
 #' 
-shinyDropFileSave <- function(input, id, updateFreq=20000, session=getDropSession(),
+shinyDropFileSave <- function(input, id, updateFreq=100000, session=getDropSession(),
                           defaultPath='', defaultRoot=NULL,dtoken, ...) {
     clientId = session$ns(id)
     fileGet <- do.call('fileGetterSave', list(session = session, id = clientId, dtoken=dtoken,...))
@@ -276,7 +282,7 @@ formatDropFiletype <- function(filetype) {
 #' 
 parseDropSavePath <- function(selection,roots=c(Home="")) {
 
-    if(is.null(selection)) return(data.frame(name=character(), type=character(),
+    if(is.null(selection)) return(data.frame(name=character(), path = character(),#type=character(),
                                              datapath=character(), stringsAsFactors = FALSE))
     
     currentRoots <- if(class(roots) == 'function') roots() else roots
@@ -286,14 +292,16 @@ parseDropSavePath <- function(selection,roots=c(Home="")) {
     root <- currentRoots[selection$root]
 
     location <- do.call('file.path', as.list(selection$path))
-
+    savePath <- file.path(root, location)
+    savePath <- gsub(pattern='//*', '/', savePath, perl=TRUE)
     savefile <- file.path(root, location, selection$name)
     savefile <- gsub(pattern='//*', '/', savefile, perl=TRUE)
+    
 
     type <- selection$type
     if (is.null(type)) {
         type <- ""
     }
     #data.frame(name=selection$name, type=type, datapath=savefile, stringsAsFactors = FALSE)
-    data.frame(name=selection$name, datapath=savefile, stringsAsFactors = FALSE)
+    data.frame(name=selection$name, path = savePath, datapath=savefile, stringsAsFactors = FALSE)
 }

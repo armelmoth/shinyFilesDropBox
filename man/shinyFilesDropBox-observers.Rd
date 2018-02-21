@@ -7,15 +7,15 @@
 \alias{shinyDropFileSave}
 \title{Create a connection to the server side filesystem}
 \usage{
-shinyDropFileChoose(input, id, updateFreq = 20000,
+shinyDropFileChoose(input, id, updateFreq = 1e+05,
   session = getDropSession(), defaultRoot = NULL, defaultPath = "",
   dtoken, ...)
 
-shinyDropDirChoose(input, id, updateFreq = 20000,
+shinyDropDirChoose(input, id, updateFreq = 1e+05,
   session = getDropSession(), defaultPath = "", defaultRoot = NULL,
   dtoken, ...)
 
-shinyDropFileSave(input, id, updateFreq = 20000, session = getDropSession(),
+shinyDropFileSave(input, id, updateFreq = 1e+05, session = getDropSession(),
   defaultPath = "", defaultRoot = NULL, dtoken, ...)
 }
 \arguments{

@@ -1,12 +1,12 @@
-source("R/aaa.R")
-source("R/filechoose.R")
-source("R/dirchoose.R")
-source("R/filesave.R")
+#source("R/aaa.R")
+#source("R/filechoose.R")
+#source("R/dirchoose.R")
+#source("R/filesave.R")
 
 # library(shiny)
 # library(shinyFilesDropBox)
 # library(rdrop2)
-token = drop_auth(new_user = FALSE, cache=FALSE)
+# token = drop_auth(new_user = TRUE, cache=FALSE)
 
 ui <- shinyUI(bootstrapPage(
     shinyDropFilesButton('files', 'File select', 'Please select a file', FALSE),

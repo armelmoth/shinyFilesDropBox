@@ -117,7 +117,6 @@ fileGetterFile <- function(restrictions, filetypes, session,id,dtoken,roots=c(Ho
         session$sendCustomMessage('shinyFilesProgress',list(width = "24",id=id))
         drop_dir = drop_dir(fulldir,dtoken = dtoken)
         writable = TRUE
-        
         res = list()
         
         if(nrow(drop_dir)==0){
@@ -169,7 +168,7 @@ fileGetterFile <- function(restrictions, filetypes, session,id,dtoken,roots=c(Ho
                 )
             }
             if (length(drop_dir$.tag[drop_dir$.tag=='file'])>0){
-                
+
                 session$sendCustomMessage('shinyFilesProgress',list(width = "28",id=id))
                 files = drop_dir$path_display
                 files <- gsub(pattern='//*', '/', files, perl=TRUE)
@@ -181,7 +180,7 @@ fileGetterFile <- function(restrictions, filetypes, session,id,dtoken,roots=c(Ho
                     }
                     files <- files[keep]
                 }
-                
+
                 session$sendCustomMessage('shinyFilesProgress',list(width = "28",id=id))
                 fileInfo = data.frame(filename = basename(files))
                 fileInfo$extension <- tolower(file_ext(files))
@@ -193,35 +192,34 @@ fileGetterFile <- function(restrictions, filetypes, session,id,dtoken,roots=c(Ho
                 drop_dir$server_modified = gsub("Z","", drop_dir$server_modified)
                 
                 session$sendCustomMessage('shinyFilesProgress',list(width = "28",id=id))
-                
+
                 fileInfo$mtime <- substr(drop_dir$client_modified,1,(nchar(drop_dir$client_modified)-3))
                 fileInfo$ctime <- substr(drop_dir$server_modified,1,(nchar(drop_dir$server_modified)-3))
                 fileInfo$atime <- substr(drop_dir$client_modified,1,(nchar(drop_dir$client_modified)-3))
                 
                 
                 session$sendCustomMessage('shinyFilesProgress',list(width = "50",id=id))
-                
                 fileInfo$isdir = drop_dir$.tag == 'folder'
                 fileInfo$size = drop_dir$size
                 
                 lengthIsdir = length(fileInfo$filename[fileInfo$isdir])
-                infoIsdir = lapply(as.vector(drop_dir$path_display[drop_dir$.tag == 'folder']), getInfo,dtoken)
+                
+                if(lengthIsdir > 0){
+                    infoIsdir = lapply(as.vector(drop_dir$path_display[drop_dir$.tag == 'folder']), getInfo,dtoken)
+                    session$sendCustomMessage('shinyFilesProgress',list(width = "12",id=id))
+                    fileInfo$size[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$size})
+                    fileInfo$mtime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$mtime})
+                    fileInfo$atime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$atime})
+                    fileInfo$ctime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$ctime})
+                }
+                
+                
                 session$sendCustomMessage('shinyFilesProgress',list(width = "12",id=id))
-                
-                fileInfo$size[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$size})
-                fileInfo$mtime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$mtime})
-                fileInfo$atime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$atime})
-                fileInfo$ctime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$ctime})
-                
-                session$sendCustomMessage('shinyFilesProgress',list(width = "12",id=id))
-                
                 if (!is.null(filetypes)) {
                     matchedFiles <- tolower(fileInfo$extension) %in% tolower(filetypes) & fileInfo$extension != ''
                     fileInfo$isdir[matchedFiles] <- FALSE
                     fileInfo <- fileInfo[matchedFiles | fileInfo$isdir,]
                 }
-                
-                
                 rownames(fileInfo) <- NULL
                 breadcrumps <- strsplit(dir, .Platform$file.sep)[[1]]
                 res = list(
@@ -318,7 +316,7 @@ fileGetterFile <- function(restrictions, filetypes, session,id,dtoken,roots=c(Ho
 #' 
 #' @export
 #' 
-shinyDropFileChoose <- function(input, id, updateFreq=20000, session = getDropSession(), 
+shinyDropFileChoose <- function(input, id, updateFreq=100000, session = getDropSession(), 
                             defaultRoot=NULL, defaultPath='', dtoken, ...) {
     
     clientId = session$ns(id)
@@ -333,12 +331,15 @@ shinyDropFileChoose <- function(input, id, updateFreq=20000, session = getDropSe
             dir <- list(dir=dir$path, root=dir$root)
         }
         dir$dir <- do.call(file.path, as.list(dir$dir))
+        #print(paste("Geting file",id))
         newDir <- do.call('fileGet', dir)
+        #print(paste("File got",id))
         session$sendCustomMessage('shinyFilesProgressEnd',list(id=clientId)) 
         if(!identical(currentDir, newDir)) {
             currentDir <<- newDir
-             
+            #print(paste("Dialog box",id))
             session$sendCustomMessage('shinyFiles', list(id=clientId, dir=newDir))
+            #print(paste("Dialog box Done",id))
         }
         invalidateLater(updateFreq, session)
     }))
