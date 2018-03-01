@@ -18,7 +18,13 @@ NULL
 #' @importFrom rdrop2 drop_dir
 #' 
 getInfo = function(folderPath,dtoken){
-    drop_dir = drop_dir(folderPath,dtoken = dtoken)
+    drop_dir = data.frame()
+    repeat{
+        drop_dir = tryCatch(drop_dir(folderPath,dtoken = dtoken),error=function(e) { e })
+        if(is.data.frame(drop_dir)){
+            break
+        }
+    }
     res = list()
     if(nrow(drop_dir)==0){
         res = list(
@@ -110,15 +116,32 @@ fileGetterFile <- function(restrictions, filetypes, session,id,dtoken,roots=c(Ho
         }
         
         fulldir <- file.path(currentRoots[root], dir)
+        
+        
         if(substr(fulldir,nchar(fulldir),nchar(fulldir))=="/" & nchar(fulldir)>1){
             fulldir = substr(fulldir,1,(nchar(fulldir)-1))
         }
         
         session$sendCustomMessage('shinyFilesProgress',list(width = "24",id=id))
-        drop_dir = drop_dir(fulldir,dtoken = dtoken)
+        
+        drop_dir = data.frame()
+        repeat{
+            drop_dir = tryCatch(drop_dir(fulldir,dtoken = dtoken),error=function(e) { e })
+            if(is.data.frame(drop_dir)){
+                break
+            }
+        }
         writable = TRUE
         res = list()
         
+        
+        drop_exists = FALSE
+        repeat{
+            drop_exists = tryCatch(drop_exists(fulldir,dtoken = dtoken),error=function(e) { e })
+            if(is.logical(drop_exists)){
+                break
+            }
+        }
         if(nrow(drop_dir)==0){
             session$sendCustomMessage('shinyFilesProgress',list(width = "158",id=id))
             breadcrumps <- strsplit(dir, .Platform$file.sep)[[1]]
@@ -126,7 +149,7 @@ fileGetterFile <- function(restrictions, filetypes, session,id,dtoken,roots=c(Ho
             res = list(
                 files=fileInfo[, c('filename', 'extension', 'isdir', 'size', 'mtime', 'ctime', 'atime')],
                 writable=writable,
-                exist = (fulldir == "/") || drop_exists(fulldir,dtoken = dtoken),
+                exist = (fulldir == "/") || drop_exists,
                 breadcrumps=I(c('', breadcrumps[breadcrumps != ''])),
                 roots=I(names(currentRoots)),
                 root=root
@@ -161,7 +184,7 @@ fileGetterFile <- function(restrictions, filetypes, session,id,dtoken,roots=c(Ho
                 res = list(
                     files=fileInfo[, c('filename', 'extension', 'isdir', 'size', 'mtime', 'ctime', 'atime')],
                     writable=writable,
-                    exist = (fulldir == "/") || drop_exists(fulldir,dtoken=dtoken),
+                    exist = (fulldir == "/") || drop_exists,
                     breadcrumps=I(c('', breadcrumps[breadcrumps != ''])),
                     roots=I(names(currentRoots)),
                     root=root
@@ -204,9 +227,9 @@ fileGetterFile <- function(restrictions, filetypes, session,id,dtoken,roots=c(Ho
                 
                 lengthIsdir = length(fileInfo$filename[fileInfo$isdir])
                 
+                session$sendCustomMessage('shinyFilesProgress',list(width = "12",id=id)) 
                 if(lengthIsdir > 0){
                     infoIsdir = lapply(as.vector(drop_dir$path_display[drop_dir$.tag == 'folder']), getInfo,dtoken)
-                    session$sendCustomMessage('shinyFilesProgress',list(width = "12",id=id))
                     fileInfo$size[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$size})
                     fileInfo$mtime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$mtime})
                     fileInfo$atime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$atime})
@@ -225,7 +248,7 @@ fileGetterFile <- function(restrictions, filetypes, session,id,dtoken,roots=c(Ho
                 res = list(
                     files=fileInfo[, c('filename', 'extension', 'isdir', 'size', 'mtime', 'ctime', 'atime')],
                     writable=writable,
-                    exist = (fulldir == "/") || drop_exists(fulldir,dtoken=dtoken),
+                    exist = (fulldir == "/") || drop_exists,
                     breadcrumps=I(c('', breadcrumps[breadcrumps != ''])),
                     roots=I(names(currentRoots)),
                     root=root

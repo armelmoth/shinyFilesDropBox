@@ -32,11 +32,25 @@ fileGetterDir <- function(restrictions, filetypes,session,id,dtoken,roots=c(Home
         }
         
         session$sendCustomMessage('shinyDirProgress',list(width = "14",id=id))
-        drop_dir = drop_dir(fulldir,dtoken = dtoken)
+        drop_dir = data.frame()
+        repeat{
+            drop_dir = tryCatch(drop_dir(fulldir,dtoken = dtoken),error=function(e) { e })
+            if(is.data.frame(drop_dir)){
+                break
+            }
+        }
         
         writable = TRUE
         
         res = list()
+        
+        drop_exists = FALSE
+        repeat{
+            drop_exists = tryCatch(drop_exists(fulldir,dtoken = dtoken),error=function(e) { e })
+            if(is.logical(drop_exists)){
+                break
+            }
+        }
         
         if(nrow(drop_dir)==0){
             session$sendCustomMessage('shinyDirProgress',list(width = "107",id=id))
@@ -45,7 +59,7 @@ fileGetterDir <- function(restrictions, filetypes,session,id,dtoken,roots=c(Home
             res = list(
                 files=fileInfo[, c('filename', 'extension', 'isdir', 'size', 'mtime', 'ctime', 'atime')],
                 writable=writable,
-                exist = (fulldir == "/") || drop_exists(fulldir,dtoken = dtoken),
+                exist = (fulldir == "/") || drop_exists,
                 breadcrumps=I(c('', breadcrumps[breadcrumps != ''])),
                 roots=I(names(currentRoots)),
                 root=root
@@ -80,7 +94,7 @@ fileGetterDir <- function(restrictions, filetypes,session,id,dtoken,roots=c(Home
                 res = list(
                     files=fileInfo[, c('filename', 'extension', 'isdir', 'size', 'mtime', 'ctime', 'atime')],
                     writable=writable,
-                    exist = (fulldir == "/") || drop_exists(fulldir,dtoken=dtoken),
+                    exist = (fulldir == "/") || drop_exists,
                     breadcrumps=I(c('', breadcrumps[breadcrumps != ''])),
                     roots=I(names(currentRoots)),
                     root=root
@@ -124,9 +138,9 @@ fileGetterDir <- function(restrictions, filetypes,session,id,dtoken,roots=c(Home
                 
                 lengthIsdir = length(fileInfo$filename[fileInfo$isdir])
                 
+                session$sendCustomMessage('shinyDirProgress',list(width = "12",id=id))
                 if(lengthIsdir > 0){
                     infoIsdir = lapply(as.vector(drop_dir$path_display[drop_dir$.tag == 'folder']), getInfo,dtoken)
-                    session$sendCustomMessage('shinyDirProgress',list(width = "12",id=id))
                     fileInfo$size[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$size})
                     fileInfo$mtime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$mtime})
                     fileInfo$atime[fileInfo$isdir][1:lengthIsdir] =  sapply(1:lengthIsdir, function (i){infoIsdir[i][[1]]$atime})
@@ -147,7 +161,7 @@ fileGetterDir <- function(restrictions, filetypes,session,id,dtoken,roots=c(Home
                 res = list(
                     files=fileInfo[, c('filename', 'extension', 'isdir', 'size', 'mtime', 'ctime', 'atime')],
                     writable=writable,
-                    exist = (fulldir == "/") || drop_exists(fulldir,dtoken=dtoken),
+                    exist = (fulldir == "/") || drop_exists,
                     breadcrumps=I(c('', breadcrumps[breadcrumps != ''])),
                     roots=I(names(currentRoots)),
                     root=root
@@ -201,14 +215,26 @@ traverseDropDirs <- function(tree, root, restrictions,dtoken) {
         location = substr(location,1,(nchar(location)-1))
     }
     
-    if(!((location == "/") || drop_exists(location,dtoken=dtoken))){
+    drop_exists = FALSE
+    repeat{
+        drop_exists = tryCatch(drop_exists(location,dtoken=dtoken),error=function(e) { e })
+        if(is.logical(drop_exists)){
+            break
+        }
+    }
+    
+    if(!((location == "/") || drop_exists)){
         return(NULL)
     }  # A revoir
     
-    drop_dir = drop_dir(location,dtoken = dtoken)
     
-
-    
+    drop_dir = data.frame()
+    repeat{
+        drop_dir = tryCatch(drop_dir(location,dtoken = dtoken),error=function(e) { e })
+        if(is.data.frame(drop_dir)){
+            break
+        }
+    }
     
     folders = character(0)
     if(nrow(drop_dir)>0){
@@ -366,7 +392,14 @@ dirDropCreator <- function(dtoken,roots=c(Home=""),...) {
         location = gsub(pattern='//*', '/', location, perl=TRUE)
         
         #dir.create(location)
-        drop_create(location, autorename = T,dtoken = dtoken)
+        
+        drop_create = list()
+        repeat{
+            drop_create = tryCatch(drop_create(location, autorename = T,dtoken = dtoken),error=function(e) { e })
+            if(is.list(drop_create)){
+                break
+            }
+        }
     }
 }
 
